@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Generatore Manga IT</title>
+</head>
+<body>
+  <h1>Generatore Manga Italiano</h1>
+  <form id="mangaForm">
+    <label for="title">Titolo:</label><br>
+    <input type="text" id="title" name="title"><br>
+    <label for="genre">Genere:</label><br>
+    <input type="text" id="genre" name="genre"><br>
+    <label for="description">Descrizione:</label><br>
+    <textarea id="description" name="description"></textarea><br>
+    <button type="submit">Genera Manga</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    const form = document.getElementById('mangaForm');
+    const resultDiv = document.getElementById('result');
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const data = {
+        title: form.title.value,
+        genre: form.genre.value,
+        description: form.description.value
+      };
+      resultDiv.innerText = 'Generazione in corso...';
+      const response = await fetch('http://localhost:3001/generate-manga', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if(response.ok) {
+        const json = await response.json();
+        let html = `<h2>Manga: ${json.title}</h2><ul>`;
+        json.scenes.forEach(s => {
+          html += `<li><b>Scena ${s.sceneId}:</b> ${s.text}</li>`;
+        });
+        html += '</ul>';
+        resultDiv.innerHTML = html;
+      } else {
+        resultDiv.innerText = 'Errore nella generazione del manga.';
+      }
+    };
+  </script>
+</body>
+</html>
